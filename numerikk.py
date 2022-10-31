@@ -10,7 +10,7 @@ from math import factorial as fact
 import matplotlib.pyplot as plt
 import time
 import math
-#import scipy
+import scipy
 
 
 def internal_deriv(func, x, dx=1e-5, order=1):
