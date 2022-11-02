@@ -313,12 +313,13 @@ class linalg:
     """
     numeriske metoder fra lineær algebra
     """
-    def euler(func, stopp, t0, y0, h=1e-3):
+    def euler(func, stopp, t0, y0, h=1e-3, numsteps=None):
         """
         Numerisk løsning av førsteordens ODE
         ved bruk av Eulers metode. Gir tilbake
         numpy lister for enkel visualisering
         """
+
         if stopp < t0:
             raise Exception('Sluttverdi må være større enn startverdi')
         else:
@@ -327,6 +328,9 @@ class linalg:
             y  = []
             i = 1
             for n in t:
+                if numsteps!=None:
+                    if i > numsteps:
+                        break
                 i += 1
                 yn = yn + func(t0+h**i, yn)*h
                 y.append(yn) 
