@@ -162,6 +162,8 @@ class calc:
                 print('Argument må være liste/array')
 
         else:
+            if array is None:
+                raise SyntaxError('Angi data = True')
             try:
                 dx = (stopp-start)/n
                 x = np.linspace(start,stopp,n+1)

@@ -9,7 +9,7 @@ file = 'data/acc.dat'
 dataframe = np.array(pd.read_csv(file, sep=(';')))
 dataframe.reshape(len(dataframe),1)
 
-print(calc.simpson(array=dataframe))
+print(calc.simpson(array=dataframe, data=True))
 
 
 
