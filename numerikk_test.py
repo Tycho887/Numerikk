@@ -36,8 +36,14 @@ def F1(t, y):
 def F2(t, y):
     return y**3
 
-t1, y1 = linalg.euler(func=F1, stopp=1, t0=0, y0=1, h=0.01)
-t2, y2 = linalg.euler(func=F2, stopp=2, t0=1, y0=0.5, h=0.1)
-t3, y3 = linalg.heun(func=F2, stopp=2, t0=1, y0=0.5, h=0.1)
-plt.plot(t1,y1); plt.plot(t3,y3)
-plt.plot(t2,y2); plt.show()
+def F3(t,y):
+    return 6 - 5*y/(1000+t)
+
+#t1, y1 = linalg.euler(func=F1, stopp=1, t0=0, y0=1, h=0.01)
+#t2, y2 = linalg.euler(func=F2, stopp=2, t0=1, y0=0.5, h=0.1)
+#t3, y3 = linalg.heun(func=F2, stopp=2, t0=1, y0=0.5, h=0.1)
+t4, y4 = linalg.euler(func=F3, stopp=4, t0=0, y0=0, h=1)
+#plt.plot(t1,y1); plt.plot(t3,y3)
+plt.scatter(t4,y4); plt.show()
+
+#%%

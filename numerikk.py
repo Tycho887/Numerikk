@@ -327,9 +327,9 @@ class linalg:
         else:
             yn = y0 + func(t0, y0)*h
             t  = np.arange(t0,stopp,h)
-            y  = []
+            y  = [yn]
             i = 1
-            for n in t:
+            for n in t[:-1]:
                 if numsteps!=None:
                     if i > numsteps:
                         break
