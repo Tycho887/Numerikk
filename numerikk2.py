@@ -42,6 +42,9 @@ class Function:
         #Definer integralsummen
         self.S = None
         
+        #misc
+        self.h = 1e-5
+        
 
     
     "Oppsett"
@@ -64,12 +67,17 @@ class Function:
     
     "Derivering"
     
-    def _getDerivativeFunc(self):
-        self.deriv_func = sp.lambdify(t, sp.diff(self.func(t)))
+    def derivative(self,x):
+        return (self.func(x+self.h)-self.func(x))/self.h
+    def second_deriv(self,x):
+        return (self.func(x+self.h)-2*self.func(x)+self.func(x-self.h))/(self.h**2)
+        
+        # self.deriv_func = sp.lambdify(t, sp.diff(self.func(t)))
+        # return self.deriv_func
     
     "Newtons metode"
     
-    def Find_newton(self,func,deriv_func):
+    def Find_zeros(self,func,x):
         pass
     
     "Integrering"
@@ -98,9 +106,7 @@ class Function:
         return self.S
     
     "Buelengde"
-    
-    def _tempfunc1(self,k):
-        return np.sqrt(1+(self.deriv_func(k))**2)
+
     def arclength(self):
         self._getDerivativeFunc()
         main_func = self.func
@@ -113,19 +119,14 @@ class Function:
         self._setup_values()
         plt.plot(self.x,self.y)
         plt.show()
-        
+
+class Sympy:
+    def __init__(self):
+        pass
+    def derivative(self):
+        pass
+    def arclength():
+        pass
+    def newton():
+        pass
     
-
-# def f(x):
-#     return np.sin(x)
-
-# F = Function(func=f)
-# F.interval(0,6.3)
-# F.draw()
-
-# S = F.simpson(); print(S)
-
-# Bue = F.arclength(); print(Bue)
-        
-#j = lambda i : i**2
-#J = Function(a,b,func=j)

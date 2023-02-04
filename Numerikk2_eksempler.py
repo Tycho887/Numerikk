@@ -5,15 +5,17 @@ Created on Sat Feb  4 19:12:11 2023
 @author: Michael
 """
 import numpy as np
-from numerikk2 import *
+import sympy as sp
+import numerikk2 as nr
 
 def f(x):
     return np.sin(x)
 
-F = Function(func=f)
-F.interval(0,3.14)
+F = nr.Function(func=f)
+F.interval(0,2*np.pi)
 F.draw()
 
 S = F.simpson(); print(S)
 
-Bue = F.arclength(); print(Bue)
+#g = F.derivative()
+#Bue = F.arclength(); print(Bue)

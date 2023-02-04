@@ -47,7 +47,7 @@ def sortObjectsToMass(_objects):
 def gravity_equation(_object1,_object2,_distance):
     "Force from object2 on object1"
     "No need to multiply by mass of object 1"
-    "This avoids a division operation per cycle"
+    "This avoids a division operation per iteration"
     G = 6.6743e-11
     F = (G*_object2.mass)/_distance**2
     return F
