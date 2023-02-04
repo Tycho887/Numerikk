@@ -101,10 +101,9 @@ a = 0; b = 7 # f = lambda x : x**2
 def f(x):
     return np.sin(x)
 
-j = lambda i : i**2
-
 F = Function(a,b,func=f)
-J = Function(a,b,func=j)
-
 F.draw()
+S = F.simpson()
         
+j = lambda i : i**2
+J = Function(a,b,func=j)

@@ -8,6 +8,7 @@ Created on Fri Dec  2 13:11:55 2022
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from mpl_toolkits.mplot3d import Axes3D
 
 class Object:
     def __init__(self,mass,position,velocity,name=''):
@@ -48,11 +49,8 @@ def gravity_equation(_object1,_object2,_distance):
     "No need to multiply by mass of object 1"
     "This avoids a division operation per cycle"
     G = 6.6743e-11
-    #G = 500
     F = (G*_object2.mass)/_distance**2
-    
     return F
-    
 
 def calculateForceVectors(_objects, force_equation=gravity_equation):
     size = len(_objects)
@@ -75,6 +73,9 @@ def ApplyForces(_objects):
         force = forces[:,i]
         _objects[i].applyForce(force,h=10)
 
+def update_frame(_objects):
+    pass
+
 def draw_frame(Objects):
     for i in range(len(Objects)):
         print(str(Objects[i]))
@@ -84,8 +85,15 @@ def draw_frame(Objects):
         x, y, z = Objects[i].pos
         axes.plot(x, y, z, "*", label=f"{Objects[i]}")
 
+    graph = ax.scatter(Objects.pos[0], 
+                       Objects.pos[1], 
+                       Objects.pos[2])
 
-        plt.legend(loc="upper right")
+    ani = matplotlib.animation.FuncAnimation(fig, update_graph, 19, 
+                                             interval=40, blit=False)
+
+
+    plt.legend(loc="upper right")
 
     plt.show()
 

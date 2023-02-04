@@ -24,7 +24,7 @@ def f_d(x):
 def g(x):
     return np.exp(x)
 
-print('simson', calc.simpson(func=f, n=4, start=0, stopp=2, deriv4=0, expected_value=6))
+print('simson', calc.simpson(func=f, n=4, start=0, stopp=2, deriv4=0, expected_value=6, data=False))
 
 print('trapes', calc.trapes(func=f, n=4, start=0, stopp=2, deriv2=f_d, expected_value=6))
 
