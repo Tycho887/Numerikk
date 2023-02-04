@@ -63,7 +63,8 @@ def calculateForceVectors(_objects, force_equation=gravity_equation):
             unit_vector = vector/distance
             F = force_equation(_objects[i],_objects[j],distance)
             
-            Force_matrix[:,i,j]=F*unit_vector;Force_matrix[:,j,i]=-F*unit_vector
+            Force_matrix[:,i,j]=F*unit_vector
+            Force_matrix[:,j,i]=-F*unit_vector
     
     return np.sum(Force_matrix, axis=1)
 
