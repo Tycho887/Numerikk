@@ -8,7 +8,8 @@ Created on Fri Dec  2 13:11:55 2022
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from mpl_toolkits.mplot3d import Axes3D
+import mpl_toolkits.mplot3d.axes3d as p3
+#from mpl_toolkits.mplot3d import Axes3D 
 
 class Object:
     def __init__(self,mass,position,velocity,name=''):
@@ -20,8 +21,8 @@ class Object:
     def applyForce(self,Force,h):
         "h is the interval step length"
         acc_vector = Force/self.mass
-        self.vel += acc_vector*h
         self.pos += self.vel*h + 0.5*acc_vector*h**2
+        self.vel += acc_vector*h
         return self.pos
     def __str__(self):
         return self.name
@@ -68,30 +69,49 @@ def calculateForceVectors(_objects, force_equation=gravity_equation):
     
     return np.sum(Force_matrix, axis=1)
 
-def ApplyForces(_objects):
+def ApplyForces(_objects,h):
     forces = calculateForceVectors(_objects)
     for i in range(len(forces[0,])):
         force = forces[:,i]
-        _objects[i].applyForce(force,h=10)
+        _objects[i].applyForce(force,h)
 
-def update_frame(_objects):
+def update_frame(iteration,_objects):
     pass
 
-def draw_frame(Objects):
-    for i in range(len(Objects)):
-        print(str(Objects[i]))
+def generate_data(_objects,iterations):
+    pass    
 
-        axes = plt.subplot(111, projection='3d')
 
-        x, y, z = Objects[i].pos
-        axes.plot(x, y, z, "*", label=f"{Objects[i]}")
+def draw_animation(Objects,data):
+    
 
-    graph = ax.scatter(Objects.pos[0], 
-                       Objects.pos[1], 
-                       Objects.pos[2])
+    # Attaching 3D axis to the figure
+    fig = plt.figure()
+    ax = p3.Axes3D(fig)
 
-    ani = matplotlib.animation.FuncAnimation(fig, update_graph, 19, 
-                                             interval=40, blit=False)
+    # Initialize scatters
+    scatters = [(Objects[i].pos[0],Objects[i].pos[1],Objects[i].pos[2]) for i in range(Objects)]
+
+    print(scatters)
+    
+    # Number of iterations
+    iterations = len(data)
+
+
+    # for i in range(len(Objects)):
+    #     print(str(Objects[i]))
+    #     axes = plt.subplot(111, projection='3d')
+    #     x, y, z = Objects[i].pos
+    #     axes.plot(x, y, z, "*", label=f"{Objects[i]}")
+
+    # graph = axes.scatter(Objects.pos[0], 
+    #                    Objects.pos[1], 
+    #                    Objects.pos[2])
+
+    # fig = plt.figure()
+
+    # ani = animation.FuncAnimation(fig, update_frame, 19, 
+    #                               interval=40, blit=False)
 
 
     plt.legend(loc="upper right")
@@ -100,7 +120,13 @@ def draw_frame(Objects):
 
 
 if __name__ == "__main__":
+    """
+    Ettersom listen "objects" er en liste med objecter som selv
+    inneholder deres egen posisjon, trengs det ikke 
+    """
+    
+    h = 10
     objects = getObjectsFromFile()
     sortObjectsToMass(objects)
-    ApplyForces(objects)
-    draw_frame(objects)
+    ApplyForces(objects,h)
+    draw_animation(objects,None)

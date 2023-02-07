@@ -44,8 +44,6 @@ class Function:
         
         #misc
         self.h = 1e-5
-        
-
     
     "Oppsett"
     
@@ -72,17 +70,26 @@ class Function:
     def second_deriv(self,x):
         return (self.func(x+self.h)-2*self.func(x)+self.func(x-self.h))/(self.h**2)
         
-        # self.deriv_func = sp.lambdify(t, sp.diff(self.func(t)))
-        # return self.deriv_func
-    
     "Newtons metode"
     
-    def Find_zeros(self,func,x):
-        pass
-    
+    def Find_zeros(self,init_x,tolerance=1e-5,iterations=1000):
+        """
+        Finn nullpunkter ved Newtons metode
+        """
+        assert self.a < init_x < self.b
+        assert isinstance(init_x, (float,int,complex))
+        x = init_x
+        iters = 0
+        while abs(self.func(x)) > tolerance and iters < iterations:
+            x -= self.func(x)/self.derivative(x)
+        return x
+        
     "Integrering"
     
     def _setup_integral(self):
+        """
+        Initialiserer regner ut 
+        """
         self._setup_values()
         self.S = self.y[0]+self.y[-1]
         return self.S
@@ -104,21 +111,31 @@ class Function:
         self.S += sum([self.func(i) for i in list(self.x[:-1]+(self.dx/2))])
         self.S *= self.dx
         return self.S
-    
-    "Buelengde"
-
-    def arclength(self):
-        self._getDerivativeFunc()
-        main_func = self.func
-        S = self._tempfunc(1)
-        
+                
     "Visualisering"
     
-    def draw(self,a=None,b=None,n=None):
-        self.interval(a, b, n)
-        self._setup_values()
-        plt.plot(self.x,self.y)
+    def draw(self,a=None,b=None,n=None,polar=False):
+        fig = plt.figure(dpi=200)
+        if polar:
+            
+            if (a==None or b==None) and n==None:
+                self.interval(0,2*np.pi,100)
+            elif n!=None and (a==None and b==None):
+                self.interval(0,2*np.pi, n)
+            else:
+                self.interval(a, b, n)
+                
+            self._setup_values()
+            ax = fig.add_subplot(projection='polar')
+            plt.polar(self.x,self.y,marker='o')
+        else:
+            self.interval(a, b, n)
+            self._setup_values()
+            plt.plot(self.x,self.y)
         plt.show()
+    
+    def getPoints(self):
+        return self.x,self.y
 
 class Sympy:
     def __init__(self):
