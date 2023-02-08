@@ -10,7 +10,7 @@ import numpy as np
 
 
 def r(t):
-    return 2+np.sin(t)
+    return 1+np.cos(t)
 
 R = nm.Function(r)
 

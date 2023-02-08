@@ -17,5 +17,5 @@ def r2(t):
 R1 = nm.Function(r1)
 R2 = nm.Function(r2)
 
-R1.draw(0,10)
+R1.draw(polar=True)
 R2.draw(0,10)

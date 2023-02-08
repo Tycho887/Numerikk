@@ -14,10 +14,12 @@ import sympy as sp
 
 
 #Sympy symboler
-t = sp.Symbol('t')
+#t = sp.Symbol('t')
+
+temp_func = None
 
 class Function:
-    def __init__(self,func,a=None,b=None,n=1e4):
+    def __init__(self,func,a=None,b=None,n=1e4,polar=False):
         """
         a: float or list/array. Either start value or list/array
            containing data.
@@ -27,11 +29,10 @@ class Function:
         self.func = func
         
         #Definer skjente nullpunkter
-        self.deriv_func = None
         self.zeros = []
         
         #Definer området før du kan arbeide
-        self.a = a; self.b = b;
+        self.a = a; self.b = b
         
         #Definer x og y punkter
         self.n = math.ceil(n) # antall inndelinger
@@ -43,25 +44,37 @@ class Function:
         self.S = None
         
         #misc
-        self.h = 1e-5
+        self.h = 1e-4
+        self.polar=polar
+        self._auto = False # bestemmer om enkelte prosesser skal skjøres automatisk
+        
     
     "Oppsett"
     
     def interval(self,a,b,n=None):
-        if a!=None and b!=None:
-            self.a = a
-            self.b = b
-            if n!=None:
-                self.n = n
+        try:
+            self.a = float(a)
+        except Exception:
+            print('Startverdi må være et gyldig tall')
+        try:
+            self.b = float(b)
+        except Exception:
+            print('Startverdi må være et gyldig tall')
+        try:
+            self.n = int(n)
+        except Exception:
+            print('antall intervaller må være et gyldig tall')
         return self.a,self.b,self.n
     
-    def _setup_values(self):
+    def _setup_values(self,func=None):
+        if func==None:
+            func = self.func
         if self.a==None or self.b==None:
             raise ValueError("Parametere er udefinert")
         self.x = np.linspace(self.a,self.b,self.n+1)
         self.dx = (self.b-self.a)/self.n
-        self.y = self.func(self.x)
-        return self.x,self.y,self.dx
+        self.y = func(self.x)
+        #return self.x,self.y,self.dx
     
     "Derivering"
     
@@ -72,7 +85,7 @@ class Function:
         
     "Newtons metode"
     
-    def Find_zeros(self,init_x,tolerance=1e-5,iterations=1000):
+    def Find_zeros(self,init_x,iterations=1000):
         """
         Finn nullpunkter ved Newtons metode
         """
@@ -80,52 +93,86 @@ class Function:
         assert isinstance(init_x, (float,int,complex))
         x = init_x
         iters = 0
-        while abs(self.func(x)) > tolerance and iters < iterations:
+        while abs(self.func(x)) > self.h and iters < iterations:
             x -= self.func(x)/self.derivative(x)
         return x
         
     "Integrering"
     
-    def _setup_integral(self):
+    def integrate(self,method='simpson',func=None):
         """
-        Initialiserer regner ut 
+        Initialiserer
         """
-        self._setup_values()
+        self._setup_values(func)
         self.S = self.y[0]+self.y[-1]
-        return self.S
         
-    def trapes(self):
-        self._setup_integral()        
-        self.S += sum([2*i for i in self.y[1:-1]])
-        self.S *= 0.5*self.dx
-        return self.S
+        if method=='simpson':
+
+            self.S += sum([4*i for i in self.y[1:-1:2]])+sum([2*i for i in self.y[2:-1:2]]) 
+            self.S *= (self.dx/3)
+        
+        elif method=='trapes':
     
-    def simpson(self):
-        self._setup_integral()
-        self.S += sum([4*i for i in self.y[1:-1:2]])+sum([2*i for i in self.y[2:-1:2]]) 
-        self.S *= (self.dx/3)
-        return self.S    
+            self.S += sum([2*i for i in self.y[1:-1]])
+            self.S *= 0.5*self.dx
     
-    def midtpunkt(self):
-        self._setup_integral()
-        self.S += sum([self.func(i) for i in list(self.x[:-1]+(self.dx/2))])
-        self.S *= self.dx
+        elif method=='midtpunkt':
+            
+            if func==None:
+                func=self.func
+            self.S += sum([func(i) for i in list(self.x[:-1]+(self.dx/2))])
+            self.S *= self.dx
+        
+        else:
+            raise Exception('Definer en type')
+    
+        #print(self.y)
+        #print(self.func(2))
+        
+        
         return self.S
                 
+    "Buelengde"
+    
+    def buelengde(self):
+        data = [self.x,self.y,self.func]; S = 0
+        if self.polar:
+            func = lambda t : np.sqrt((self.func(t))**2+(self.derivative(t))**2)
+            S=self.integrate(func=func)
+        else:
+            func = lambda t : np.sqrt(1+(self.derivative(t))**2)
+            S=self.integrate(func=func)
+        self.x,self.y,self.func = data[0],data[1],data[2]
+        return S
+        
+    "polart areal"
+
+    def polar_area(self):
+        assert self.polar
+        data = [self.x,self.y,self.func]
+        func = lambda t: 0.5*(self.func(t))**2
+        S = self.integrate(func=func)
+        self.x,self.y,self.func = data[0],data[1],data[2]
+        return S
+        
     "Visualisering"
     
     def draw(self,a=None,b=None,n=None,polar=False):
         fig = plt.figure(dpi=200)
         if polar:
+            self.polar=True
+        if self.polar:
             
-            if (a==None or b==None) and n==None:
-                self.interval(0,2*np.pi,100)
-            elif n!=None and (a==None and b==None):
-                self.interval(0,2*np.pi, n)
-            else:
-                self.interval(a, b, n)
-                
+            try:
+                self.a = float(a)
+                self.b = float(b)
+                if n!=None:
+                    self.n = int(n)
+            except Exception:
+                pass
             self._setup_values()
+            
+            
             ax = fig.add_subplot(projection='polar')
             plt.polar(self.x,self.y,marker='o')
         else:
@@ -136,6 +183,16 @@ class Function:
     
     def getPoints(self):
         return self.x,self.y
+
+def f(x):
+    return np.sqrt(1-x**2)
+
+# F = Function(f,0.01,0.99)
+# S = F.integrate()
+# S1=F.buelengde()
+# F.draw()
+# print(S,S1)
+
 
 class Sympy:
     def __init__(self):

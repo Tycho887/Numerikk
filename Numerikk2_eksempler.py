@@ -12,12 +12,18 @@ def f(x):
     return np.sin(x)
 
 F = nr.Function(f)
-F.interval(0,2)
+F.interval(0,np.pi)
 F.draw()
 
-S = F.simpson(); print(S)
+S = F.trapes(); print(S)
+N = F.buelengde()
 
+# def g(x):
+#     return 1/2 * (np.cos(2*x))**2
 
+# G = nr.Function(g,0,2*np.pi)
+# S = G.simpson()/3
+# print(S)
 
 # G = nr.Function(g)
 #def g(x):
