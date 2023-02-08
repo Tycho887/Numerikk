@@ -20,9 +20,16 @@ print(A)
 
 "Oppgave 10.5.21"
 
-h = lambda t : t**2       #np.exp(t)/np.sqrt(2)
+h = lambda t : t**2
 H = nm.Function(h,0,np.sqrt(5),polar=True)
 H.draw()
 L=H.buelengde()
 print(L)
 
+"Oppgave 10.5.21"
+
+h = lambda t : np.exp(t)/np.sqrt(2)
+H = nm.Function(h,0,np.pi,polar=True)
+H.draw()
+L=H.buelengde()
+print(L)
