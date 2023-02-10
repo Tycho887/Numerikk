@@ -17,17 +17,19 @@ class Object:
         self.mass = mass
         self.pos = np.array(position)
         self.vel = np.array(velocity)
+        self.pos_log = []
         "Position and velocity are 3D vectors"
     def applyForce(self,Force,h):
         "h is the interval step length"
         acc_vector = Force/self.mass
         self.pos += self.vel*h + 0.5*acc_vector*h**2
         self.vel += acc_vector*h
+        self.pos_log.append(self.pos)
         return self.pos
     def __str__(self):
         return self.name
     def getPos(self):
-        return self.pos
+        return self.pos_log
 
 Earth = Object(6e24,[1.5e10,3,2],[3e5,100,200])
     
@@ -44,6 +46,7 @@ def getObjectsFromFile(file='data/objects.csv'):
 
 def sortObjectsToMass(_objects):
     _objects.sort(key=lambda x: x.mass, reverse=True)
+    return _objects
 
 def gravity_equation(_object1,_object2,_distance):
     "Force from object2 on object1"
@@ -67,19 +70,35 @@ def calculateForceVectors(_objects, force_equation=gravity_equation):
             Force_matrix[:,i,j]=F*unit_vector
             Force_matrix[:,j,i]=-F*unit_vector
     
+    "Calculates a matrix of every force between objects"
+    "The resultant force on each object is given by the sum of forces along the"
+    "1-axis of the 3-d matrix"
+    "returns a matrix of forcevectors for each object"
+    
     return np.sum(Force_matrix, axis=1)
 
 def ApplyForces(_objects,h):
+
+
     forces = calculateForceVectors(_objects)
     for i in range(len(forces[0,])):
         force = forces[:,i]
         _objects[i].applyForce(force,h)
+        print(force)
 
-def update_frame(iteration,_objects):
-    pass
+def generate_data(_objects,iterations,dt):
+    for i in range(iterations):
+        ApplyForces(_objects, dt)
 
-def generate_data(_objects,iterations):
-    pass    
+def draw_frame(Objects):
+    for i in Objects:
+        #print(str(Objects[i]))
+        axes = plt.subplot(111, projection='3d')
+        for j in i.pos_log:
+            x, y, z = j[0],j[1],j[2]
+            axes.plot(x, y, z, "*")
+    
+    plt.show()
 
 
 def draw_animation(Objects,data):
@@ -124,9 +143,11 @@ if __name__ == "__main__":
     Ettersom listen "objects" er en liste med objecter som selv
     inneholder deres egen posisjon, trengs det ikke 
     """
-    
     h = 10
     objects = getObjectsFromFile()
     sortObjectsToMass(objects)
-    ApplyForces(objects,h)
-    draw_animation(objects,None)
+    generate_data(objects,10000,10)
+    draw_frame(objects)
+    
+    #ApplyForces(objects,h)
+    #draw_animation(objects,None)

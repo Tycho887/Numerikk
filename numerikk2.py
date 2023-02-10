@@ -184,14 +184,21 @@ class Function:
     def getPoints(self):
         return self.x,self.y
 
-def f(x):
-    return np.sqrt(1-x**2)
+# def f(x):
+#     return np.sqrt(1-x**2)
 
 # F = Function(f,0.01,0.99)
 # S = F.integrate()
 # S1=F.buelengde()
 # F.draw()
 # print(S,S1)
+
+class diffeq:
+    def __init__(self,func,a,b,C0):
+        self.func = func
+        self.a = a
+        self.b = b
+        self.C = C0
 
 
 class Sympy:
