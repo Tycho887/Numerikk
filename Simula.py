@@ -22,8 +22,8 @@ class Object:
     def applyForce(self,Force,h):
         "h is the interval step length"
         acc_vector = Force/self.mass
-        self.pos += self.vel*h + 0.5*acc_vector*h**2
         self.vel += acc_vector*h
+        self.pos += self.vel*h + 0.5*acc_vector*h**2
         self.pos_log.append(self.pos)
         return self.pos
     def __str__(self):
@@ -78,12 +78,10 @@ def calculateForceVectors(_objects, force_equation=gravity_equation):
     return np.sum(Force_matrix, axis=1)
 
 def ApplyForces(_objects,h):
-
-
     forces = calculateForceVectors(_objects)
     for i in range(len(forces[0,])):
         force = forces[:,i]
-        _objects[i].applyForce(force,h)
+        _objects[i].pos=_objects[i].applyForce(force,h)
         print(force)
 
 def generate_data(_objects,iterations,dt):
@@ -92,14 +90,14 @@ def generate_data(_objects,iterations,dt):
 
 def draw_frame(Objects):
     for i in Objects:
-        #print(str(Objects[i]))
         axes = plt.subplot(111, projection='3d')
         for j in i.pos_log:
             x, y, z = j[0],j[1],j[2]
             axes.plot(x, y, z, "*")
-    
     plt.show()
 
+generate_data([Earth], 1000, 1)
+draw_frame([Earth])
 
 def draw_animation(Objects,data):
     
@@ -138,16 +136,19 @@ def draw_animation(Objects,data):
     plt.show()
 
 
-if __name__ == "__main__":
-    """
-    Ettersom listen "objects" er en liste med objecter som selv
-    inneholder deres egen posisjon, trengs det ikke 
-    """
-    h = 10
-    objects = getObjectsFromFile()
-    sortObjectsToMass(objects)
-    generate_data(objects,10000,10)
-    draw_frame(objects)
+
+
+
+# if __name__ == "__main__":
+#     """
+#     Ettersom listen "objects" er en liste med objecter som selv
+#     inneholder deres egen posisjon, trengs det ikke 
+#     """
+#     h = 10
+#     objects = getObjectsFromFile('data/earth_moon.csv')
+#     sortObjectsToMass(objects)
+#     generate_data(objects,500,10)
+#     draw_frame(objects)
     
-    #ApplyForces(objects,h)
-    #draw_animation(objects,None)
+#     #ApplyForces(objects,h)
+#     #draw_animation(objects,None)

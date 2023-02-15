@@ -19,7 +19,7 @@ import sympy as sp
 temp_func = None
 
 class Function:
-    def __init__(self,func,a=None,b=None,n=1e4,polar=False):
+    def __init__(self,func,a=None,b=None,n=1e4,polar=False,multival=False):
         """
         a: float or list/array. Either start value or list/array
            containing data.
@@ -47,7 +47,7 @@ class Function:
         self.h = 1e-4
         self.polar=polar
         self._auto = False # bestemmer om enkelte prosesser skal skjøres automatisk
-        
+        self.multival=multival
     
     "Oppsett"
     
@@ -67,6 +67,7 @@ class Function:
         return self.a,self.b,self.n
     
     def _setup_values(self,func=None):
+        assert self.multival==False
         if func==None:
             func = self.func
         if self.a==None or self.b==None:
@@ -85,7 +86,7 @@ class Function:
         
     "Newtons metode"
     
-    def Find_zeros(self,init_x,iterations=1000):
+    def Find_zeros(self,init_x,iterations=1000,deriv_func=None):
         """
         Finn nullpunkter ved Newtons metode
         """
@@ -93,9 +94,15 @@ class Function:
         assert isinstance(init_x, (float,int,complex))
         x = init_x
         iters = 0
-        while abs(self.func(x)) > self.h and iters < iterations:
-            x -= self.func(x)/self.derivative(x)
-        return x
+        if deriv_func==None:
+            while abs(self.func(x)) > self.h and iters < iterations:
+                x -= self.func(x)/self.derivative(x)
+            return x
+        elif callable(deriv_func):
+            while abs(self.func(x)) > self.h and iters < iterations:
+                x -= self.func(x)/deriv_func(x)
+            return x
+        
         
     "Integrering"
     
@@ -194,11 +201,38 @@ class Function:
 # print(S,S1)
 
 class diffeq:
-    def __init__(self,func,a,b,C0):
+    def __init__(self,func,x0,xn,y0,h=1e-3,numsteps=3000):
         self.func = func
-        self.a = a
-        self.b = b
-        self.C = C0
+        self.h = h
+        
+        self.y = [y0]
+        self.x = np.arange(x0,xn,h)
+        if len(self.x) > numsteps:
+            self.x = np.linspace(x0,xn,numsteps)
+        
+    def solve(self,method='euler'):
+        if method=='euler':
+            for x in self.x[:-1]:
+                yn = self.y[-1] + self.h * self.func(x,self.y[-1])
+                self.y.append(yn)
+            
+        elif method=='heun':
+            for x in self.x[:-1]:
+                K1 = self.func(x,self.y[-1])
+                K2 = self.func(x+self.h,self.y[-1]+self.h*K1)
+                yn = self.y[-1] + 0.5*self.h*(K1+K2)
+                self.y.append(yn)
+        
+        return self.x,self.y
+    
+    def draw(self):
+        fig = plt.figure(dpi=1024)
+        assert len(self.x)==len(self.y)
+        plt.plot(self.x,self.y)
+        plt.show()
+
+
+
 
 
 class Sympy:

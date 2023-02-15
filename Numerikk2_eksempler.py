@@ -8,6 +8,8 @@ import numpy as np
 import sympy as sp
 import numerikk2 as nr
 
+#%% Integrasjon og tegning
+
 def f(x):
     return np.sin(x)
 
@@ -17,6 +19,9 @@ F.draw()
 
 S = F.trapes(); print(S)
 N = F.buelengde()
+
+
+#%% Bruh
 
 # def g(x):
 #     return 1/2 * (np.cos(2*x))**2
@@ -32,3 +37,12 @@ N = F.buelengde()
 #x = F.Find_zeros(2); print(x)
 #g = F.derivative()
 #Bue = F.arclength(); print(Bue)
+
+#%% Diff likninger
+
+def f(t,y):
+    return 6 - 5*y/(1000+t) 
+
+F = nr.diffeq(f, 0, 500, 0.2)
+F.solve()
+F.draw()
