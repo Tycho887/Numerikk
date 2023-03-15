@@ -26,9 +26,9 @@ class Object:
         self.energy = 0
         "Position and velocity are 3D vectors"
         
-    def applyForce(self,Force,h):
+    def applyAcceleration(self,acc_vector,h):
         "h is the interval step length"
-        acc_vector = Force/self.mass
+        #acc_vector = Force/self.mass
         self.vel += acc_vector*h
         #print(Force)
         self.pos += self.vel*h + 0.5*acc_vector*h**2
@@ -40,9 +40,24 @@ class Object:
     def getPos(self):
         return self.pos_log
 
+class System:
+    def __init__(self,iterations,dt):
+        self.iter = iterations
+        self.dt = dt
+        self.com_log = []
+    def get_com(self,objects):
+        for i in range(len(objects[0].pos_log)):
+            com = sum([obj.mass*obj.pos_log[i] for obj in objects])
+            total_mass = sum([obj.mass for obj in objects])
+            self.com_log.append(com/total_mass)
+
+            
+    
+    
 def getObjectsFromFile(file='data/objects.csv'):
     objects = []
     with open(file,'r') as filein:
+        #iterations,dt = filein.readline().split(';')
         for line in filein:
             name,mass,pos,vel = line.split(';')
             mass = float(mass)
@@ -55,53 +70,63 @@ def sortObjectsToMass(_objects):
     _objects.sort(key=lambda x: x.mass, reverse=True)
     return _objects
 
-def gravity_equation(_object1,_object2,_distance):
-    "Force from object2 on object1"
+def gravity_equation(_object1):
+    "Force from object1 on object2"
     "No need to multiply by mass of object 1"
     "This avoids a division operation per iteration"
-    F = (G*_object2.mass*_object1.mass)/_distance**2
-    return F
+    A = (G*_object1.mass)
+    return A
 
-def calculateForceVectors(_objects, force_equation=gravity_equation):
+def calculateAccelerationVectors(_objects, force_equation=gravity_equation):
     size = len(_objects)
-    Force_matrix = np.zeros(shape=(len(_objects[0].pos),size,size), dtype=float)
-    for i in range(len(Force_matrix[0,])):
-        for j in range(i+1,len(Force_matrix[0,])):
+    Acc_matrix = np.zeros(shape=(len(_objects[0].pos),size,size), dtype=float)
+    for i in range(len(Acc_matrix[0,])):
+        for j in range(i+1,len(Acc_matrix[0,])):
             
             vector = _objects[i].pos-_objects[j].pos
             distance = np.linalg.norm(vector)
+            R2 = 1/distance**2
             unit_vector = vector/distance
-            F = force_equation(_objects[i],_objects[j],distance)
-           # print(F)
-            Force_matrix[:,i,j]=F*unit_vector
-            Force_matrix[:,j,i]=-F*unit_vector
+            A1 = force_equation(_objects[i])*R2
+            A2 = force_equation(_objects[j])*R2
+            # print(F)
+            Acc_matrix[:,i,j]=A1*unit_vector
+            Acc_matrix[:,j,i]=-A2*unit_vector
 #             print(f'''vector: {vector}
 # distance: {distance}
 # unit vector: {unit_vector}
-# Force: {F}''')
+# Acclereration: {A1,A2}''')
 
     "Calculates a matrix of every force between objects"
     "The resultant force on each object is given by the sum of forces along the"
     "1-axis of the 3-d matrix"
     "returns a matrix of forcevectors for each object"
     
-    return np.sum(Force_matrix, axis=1)
+    return np.sum(Acc_matrix, axis=1)
 
-def ApplyForces(_objects,h):
-    forces = calculateForceVectors(_objects)
-    for i in range(len(forces[0,])):
-        force = forces[:,i]
-        _objects[i].applyForce(force,h)
+def ApplyAcceleration(_objects,h):
+    Accelerations = calculateAccelerationVectors(_objects)
+    for i in range(len(Accelerations[0,])):
+        Acc = Accelerations[:,i]
+        _objects[i].applyAcceleration(Acc,h)
         
 
 def generate_data(_objects,iterations,dt):
     for i in range(iterations):
         print(f'Generating data {i}/{iterations}')
-        ApplyForces(_objects, dt)
+        ApplyAcceleration(_objects, dt)
 
 def curate_data(_objects,iterations):
     for planet in _objects:
-        planet.pos_log = planet.pos_log[::100]
+        planet.pos_log = planet.pos_log[::300]
+
+def get_frame_size(objects):
+    Max = []
+    for i in objects:
+        Max.append(np.max(i.pos_log))
+    return max(Max)
+        
+
 
 def draw_frame(Objects):
     if len(objects[0].pos)==3:
@@ -121,7 +146,10 @@ def draw_frame(Objects):
                 plt.scatter(x,y,s=1,color='blue')
             plt.scatter(i.pos[0],i.pos[1],s=50)
     plt.show()
-        
+
+#def center_of_mass
+
+
 def system_energy(objects):
     pass
     # Finn den totale energien i systemet
@@ -140,7 +168,7 @@ if __name__ == "__main__":
     Ettersom listen "objects" er en liste med objecter som selv
     inneholder deres egen posisjon, trengs det ikke 
     """
-    h = 15; iterations = 50000
+    h = 5; iterations = 100000
     objects = getObjectsFromFile('data/earth_moon2d.csv')
     sortObjectsToMass(objects)
     generate_data(objects,iterations,h)
@@ -150,6 +178,11 @@ if __name__ == "__main__":
     draw_frame(objects)
     
     print(f'Program runtime: {time.time()-start:.3f} seconds')
+    
+    #print(get_frame_size(objects))
+    
+    #sys = System(iterations,h)
+    #sys.get_com(objects)
     
     #system_energy(objects)
     

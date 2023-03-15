@@ -12,14 +12,8 @@ import math
 import scipy
 import sympy as sp
 
-
-#Sympy symboler
-#t = sp.Symbol('t')
-
-temp_func = None
-
 class Function:
-    def __init__(self,func,a=None,b=None,n=1e4,polar=False,multival=False):
+    def __init__(self,func,a=None,b=None,n=1e4,polar=False):
         """
         a: float or list/array. Either start value or list/array
            containing data.
@@ -47,7 +41,6 @@ class Function:
         self.h = 1e-4
         self.polar=polar
         self._auto = False # bestemmer om enkelte prosesser skal skjøres automatisk
-        self.multival=multival
     
     "Oppsett"
     
@@ -67,7 +60,6 @@ class Function:
         return self.a,self.b,self.n
     
     def _setup_values(self,func=None):
-        assert self.multival==False
         if func==None:
             func = self.func
         if self.a==None or self.b==None:
@@ -90,7 +82,7 @@ class Function:
         """
         Finn nullpunkter ved Newtons metode
         """
-        assert self.a < init_x < self.b
+        #assert self.a < init_x < self.b
         assert isinstance(init_x, (float,int,complex))
         x = init_x
         iters = 0
@@ -99,7 +91,7 @@ class Function:
                 x -= self.func(x)/self.derivative(x)
             return x
         elif callable(deriv_func):
-            while abs(self.func(x)) > self.h and iters < iterations:
+            while iters < iterations:
                 x -= self.func(x)/deriv_func(x)
             return x
         
@@ -110,6 +102,8 @@ class Function:
         """
         Initialiserer
         """
+        if func==None:
+            func=self.func
         self._setup_values(func)
         self.S = self.y[0]+self.y[-1]
         
@@ -125,8 +119,6 @@ class Function:
     
         elif method=='midtpunkt':
             
-            if func==None:
-                func=self.func
             self.S += sum([func(i) for i in list(self.x[:-1]+(self.dx/2))])
             self.S *= self.dx
         
@@ -139,6 +131,7 @@ class Function:
         
         return self.S
                 
+    
     "Buelengde"
     
     def buelengde(self):
@@ -191,15 +184,6 @@ class Function:
     def getPoints(self):
         return self.x,self.y
 
-# def f(x):
-#     return np.sqrt(1-x**2)
-
-# F = Function(f,0.01,0.99)
-# S = F.integrate()
-# S1=F.buelengde()
-# F.draw()
-# print(S,S1)
-
 class diffeq:
     def __init__(self,func,x0,xn,y0,h=1e-3,numsteps=3000):
         self.func = func
@@ -231,7 +215,120 @@ class diffeq:
         plt.plot(self.x,self.y)
         plt.show()
 
+class multi(Function):
+    def __init__(self,func,g1,g2,a,b):
+        self.func = func
+        self.c = a  ; self.d = b
+        
+        if callable(g1):
+            self.g1 = g1
+        elif not callable(g1):
+            self.g1 = lambda x: g1
+        if callable(g2):
+            self.g2 = g2
+        elif not callable(g2):
+            self.g2 = lambda x: g2
+        
+    def simpson(self,values,dx):
+        S = values[0]+values[-1]
+        S += sum([4*i for i in values[1:-1:2]])+sum([2*i for i in values[2:-1:2]]) 
+        S *= (dx/3)
+        return S
+        
+    def integrate(self,h=1e-4):
+        
+        #x_område = lambda x: np.arange(self.g1(x),self.g2(x),h)
+        y_strips = []
+        for dx in list(np.arange(self.c, self.d,h)):
+            Func = Function(lambda y : self.func(dx,y),self.g1(dx),self.g1(dx))
+            y_strips.append(Func.integrate())
+            print(y_strips)
+        return self.simpson(y_strips, h)
+        #return Volume
+            
+        
+        
+        
+        
 
+
+class stats(Function):
+    def __init__(self):
+        
+        self._constant_1 = 1/(math.sqrt(2*math.pi))
+        self.mean = None
+        self.avvik = None
+        self.n = None
+        self.alpha = None
+    
+    def normal(self,x,mean,avvik):
+        const = self._constant_1/avvik
+        exponent = ((mean-x)**2)/(-2*avvik**2)
+        return const*np.exp(exponent)
+    
+    # def _normal(self,x):
+    #     const = self._constant_1/self.avvik
+    #     exponent = ((self.mean-x)**2)/(-2*self.avvik**2)
+    #     return const*np.exp(exponent)
+    
+    def poisson():
+        pass
+    def binomial():
+        coeff = scipy.special.binom()
+        
+    def SE(self,p0,n):
+        assert p0 < 1
+        return np.sqrt(p0*(1-p0)/n)
+    
+    def Z_score(self,p,p0,SE):
+        return (p-p0)/SE
+    
+    def erf(self,x):
+        self.func = lambda t: np.exp(-t**2)
+        self.interval(0, x, 1000)
+        return 2*self.integrate()/math.sqrt(math.pi)
+    
+    def arcerf(self,k):
+        """
+        Invers til error-funksjonen, bruk denne til å finne de kritiske verdiene z* for
+        tilsvarer forskjellige konfidensintervaller.
+        """
+        assert k<1
+        kn = 1
+        erf = lambda t: np.sqrt(np.pi)/2*(self.erf(t) - k)
+        deriv_erf = lambda t: np.exp(-t**2)
+        # Bruker newtons metode til å finne inversverdien
+        for i in range(25):
+            kn -= erf(kn)/deriv_erf(kn)
+        return kn
+    
+    def p_value(self,p,p0,SE,left=False,right=False):
+        kritisk_verdi = p-p0
+        self.func = lambda x: self.normal(x=x,mean=p0,avvik=SE)
+        
+        # implementer switch statements når du oppgraderer til 
+        if not(left and right):
+            "Tosidig p-verdi"
+            self.interval(p0-kritisk_verdi, p0+kritisk_verdi,100000)
+        elif left:
+            "Venstresidig p-verdi"
+            self.interval(p0-kritisk_verdi, SE*10,100000)
+        elif right:
+            "Høyresidig p-verdi"
+            self.interval(SE*-10,+kritisk_verdi, 100000)
+        self.integrate()
+        return 1-self.S
+        
+class Normal(stats):
+    def __init__(self,mean,avvik):    
+        pass
+
+# class Binomial(Stats):
+#     def __init__(self):
+#         return
+    
+
+    
 
 
 

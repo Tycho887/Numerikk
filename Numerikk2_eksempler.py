@@ -14,10 +14,10 @@ def f(x):
     return np.sin(x)
 
 F = nr.Function(f)
-F.interval(0,np.pi)
+F.interval(0,np.pi,100)
 F.draw()
 
-S = F.trapes(); print(S)
+S = F.integrate(); print(S)
 N = F.buelengde()
 
 
@@ -40,9 +40,26 @@ N = F.buelengde()
 
 #%% Diff likninger
 
-def f(t,y):
-    return 6 - 5*y/(1000+t) 
+# def f(t,y):
+#     return 6 - 5*y/(1000+t) 
 
-F = nr.diffeq(f, 0, 500, 0.2)
-F.solve()
-F.draw()
+# F = nr.diffeq(f, 0, 500, 0.2)
+# F.solve()
+# F.draw()
+
+#%% Statistikk
+
+E = nr.stats().erf(3.42)
+print(nr.stats().arcerf(E))
+SE = nr.stats().SE(0.9,1429)
+F = nr.stats().p_value(0.9225, 0.9, SE)
+
+#%% Multivarierte funksjoner
+
+import numerikk2 as nm
+
+def f(x,y):
+    return x**2+y**2
+
+Func = nm.multi(f, 0,1,1,2)
+S = Func.integrate()
