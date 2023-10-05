@@ -16,7 +16,7 @@ def get_data():
             yr.append(int(a))
             gr.append(float(b))
         
-    return np.array(yr), np.array(gr)
+    return np.array(yr[::2]), np.array(gr[::2])
 years, grades = get_data()
 print(f'''
 Median: {np.mean(grades):.2f}
@@ -24,4 +24,5 @@ Avvik:  {max(abs(grades-np.mean(grades))):.2f}
 Høyeste noensinne: {max(grades):.2f}
 ''')
 plt.plot(years,grades)
+plt.ylim(60,64)
 plt.show()

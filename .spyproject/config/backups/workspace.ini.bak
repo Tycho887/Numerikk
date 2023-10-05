@@ -4,7 +4,7 @@ save_data_on_exit = True
 save_history = True
 save_non_project_files = False
 project_type = 'empty-project-type'
-recent_files = ['numerikk2.py', 'Numerikk2_eksempler.py', '..\\DAT110\\oppgave2_uke10.py']
+recent_files = ['numerikk2.py', 'vectoranalysis_test.py', 'MonteCarlo.py', 'runga_kutta_metode.py']
 
 [main]
 version = 0.2.0
