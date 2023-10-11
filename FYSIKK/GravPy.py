@@ -169,7 +169,7 @@ if __name__ == "__main__":
     inneholder deres egen posisjon, trengs det ikke 
     """
     h = 5; iterations = 100000
-    objects = getObjectsFromFile('data/earth_moon2d.csv')
+    objects = getObjectsFromFile('../data/earth_moon2d.csv')
     sortObjectsToMass(objects)
     generate_data(objects,iterations,h)
     curate_data(objects, iterations)
@@ -179,48 +179,3 @@ if __name__ == "__main__":
     
     print(f'Program runtime: {time.time()-start:.3f} seconds')
     
-    #print(get_frame_size(objects))
-    
-    #sys = System(iterations,h)
-    #sys.get_com(objects)
-    
-    #system_energy(objects)
-    
-    #ApplyForces(objects,h)
-    #draw_animation(objects,None)
-
-# def draw_animation(Objects,data):
-    
-
-#     # Attaching 3D axis to the figure
-#     fig = plt.figure()
-#     ax = p3.Axes3D(fig)
-
-#     # Initialize scatters
-#     scatters = [(Objects[i].pos[0],Objects[i].pos[1],Objects[i].pos[2]) for i in range(Objects)]
-
-#     print(scatters)
-    
-#     # Number of iterations
-#     iterations = len(data)
-
-
-#     # for i in range(len(Objects)):
-#     #     print(str(Objects[i]))
-#     #     axes = plt.subplot(111, projection='3d')
-#     #     x, y, z = Objects[i].pos
-#     #     axes.plot(x, y, z, "*", label=f"{Objects[i]}")
-
-#     # graph = axes.scatter(Objects.pos[0], 
-#     #                    Objects.pos[1], 
-#     #                    Objects.pos[2])
-
-#     # fig = plt.figure()
-
-#     # ani = animation.FuncAnimation(fig, update_frame, 19, 
-#     #                               interval=40, blit=False)
-
-
-#     plt.legend(loc="upper right")
-
-#     plt.show()
