@@ -184,6 +184,7 @@ class Function:
     def getPoints(self):
         return self.x,self.y
 
+
 class diffeq:
     def __init__(self,func,x0,xn,y0,h=1e-3,numsteps=3000):
         self.func = func
@@ -215,36 +216,59 @@ class diffeq:
         plt.plot(self.x,self.y)
         plt.show()
 
-class multi(Function):
-    def __init__(self,func,g1,g2,a,b):
-        self.func = func
-        self.c = a  ; self.d = b
+class Vector:
+    def __init__(self,F,C,a=None,b=None,n=1e4):
+        self.F = F
+        self.C = C
+        self.n = n
         
-        if callable(g1):
-            self.g1 = g1
-        elif not callable(g1):
-            self.g1 = lambda x: g1
-        if callable(g2):
-            self.g2 = g2
-        elif not callable(g2):
-            self.g2 = lambda x: g2
-        
-    def simpson(self,values,dx):
-        S = values[0]+values[-1]
-        S += sum([4*i for i in values[1:-1:2]])+sum([2*i for i in values[2:-1:2]]) 
-        S *= (dx/3)
+    def __derivative(self,f,P,h=1e-4):
+        return (f(P+h)-f(P))/h
+    
+    def __integrate(self,f,a,b,n):
+        I = f(np.linspace(a,b,int(n)))
+        S = I[0]+I[-1]
+        S += sum([4*i for i in I[1:-1:2]])+sum([2*i for i in I[2:-1:2]])
+        S *= (b-a)/(3*n)
         return S
+    
+    def __circulation(self,t):
+        return sum(self.F(self.C(t))*self.__derivative(self.C,t))
+    
+    def curveIntegral(self,a,b):
+        W = self.__integrate(self.__circulation,a,b,self.n)
+        return W
+
+# class multi(Function):
+#     def __init__(self,func,g1,g2,a,b):
+#         self.func = func
+#         self.c = a  ; self.d = b
         
-    def integrate(self,h=1e-4):
+#         if callable(g1):
+#             self.g1 = g1
+#         elif not callable(g1):
+#             self.g1 = lambda x: g1
+#         if callable(g2):
+#             self.g2 = g2
+#         elif not callable(g2):
+#             self.g2 = lambda x: g2
         
-        #x_område = lambda x: np.arange(self.g1(x),self.g2(x),h)
-        y_strips = []
-        for dx in list(np.arange(self.c, self.d,h)):
-            Func = Function(lambda y : self.func(dx,y),self.g1(dx),self.g1(dx))
-            y_strips.append(Func.integrate())
-            print(y_strips)
-        return self.simpson(y_strips, h)
-        #return Volume
+#     def simpson(self,values,dx):
+#         S = values[0]+values[-1]
+#         S += sum([4*i for i in values[1:-1:2]])+sum([2*i for i in values[2:-1:2]]) 
+#         S *= (dx/3)
+#         return S
+        
+    # def integrate(self,h=1e-4):
+        
+    #     #x_område = lambda x: np.arange(self.g1(x),self.g2(x),h)
+    #     y_strips = []
+    #     for dx in list(np.arange(self.c, self.d,h)):
+    #         Func = Function(lambda y : self.func(dx,y),self.g1(dx),self.g1(dx))
+    #         y_strips.append(Func.integrate())
+    #         print(y_strips)
+    #     return self.simpson(y_strips, h)
+    #     #return Volume
             
         
         

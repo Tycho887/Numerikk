@@ -49,17 +49,17 @@ N = F.buelengde()
 
 #%% Statistikk
 
-E = nr.stats().erf(3.42)
-print(nr.stats().arcerf(E))
-SE = nr.stats().SE(0.9,1429)
-F = nr.stats().p_value(0.9225, 0.9, SE)
+# E = nr.stats().erf(3.42)
+# print(nr.stats().arcerf(E))
+
+P_value = nr.stats().p_value(0.011, 0, 0.0495)
 
 #%% Multivarierte funksjoner
 
-import numerikk2 as nm
+# import numerikk2 as nm
 
-def f(x,y):
-    return x**2+y**2
+# def f(x,y):
+#     return x**2+y**2
 
-Func = nm.multi(f, 0,1,1,2)
-S = Func.integrate()
+# Func = nm.multi(f, 0,1,1,2)
+# S = Func.integrate()
